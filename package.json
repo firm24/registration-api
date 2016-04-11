@@ -1,0 +1,33 @@
+{
+  "name": "registration-gateway",
+  "version": "1.0.0",
+  "description": "Registration gateway for firm24 to legalthings",
+  "main": "web.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "*.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/legalthings/registration-gateway.git"
+  },
+  "keywords": [
+    "registration",
+    "legalthings"
+  ],
+  "author": "Sven Stam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/legalthings/registration-gateway/issues"
+  },
+  "homepage": "https://github.com/legalthings/registration-gateway#readme",
+  "dependencies": {
+    "bluebird": "^3.3.4",
+    "claudia-api-builder": "^1.1.0",
+    "domurl": "^2.1.0",
+    "request": "^2.70.0",
+    "request-promise": "^2.0.1"
+  }
+}
