@@ -85,3 +85,23 @@ api.post('/login', function (request) {
     });
   });
 },{success: {code: 303, headers: ['Location']}});
+
+api.get('/forgot', function (request) {
+  "use strict";
+
+  var iamUrl = (request.env.iam ? request.env.iam : 'http://firm24.docarama.com/service/iam');
+  var iam = new IAM(iamUrl);
+
+  return new Promise(function(resolve, reject) {
+
+    var user = {};
+    user.email = request.queryString.email;
+    user.forgotpassword = true;
+
+    iam.createSession(user).then(function() {
+      resolve(request.queryString.callback + '({\'result\': 0});');
+    }).catch(function(err) {
+      resolve(request.queryString.callback + '({\'result\': 2});');
+    });
+  });
+}, {success: { contentType: 'text/javascript' }});
