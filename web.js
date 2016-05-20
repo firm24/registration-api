@@ -11,20 +11,40 @@ api.post('/register', function (request) {
 
   var iamUrl = (request.env.iam ? request.env.iam : 'http://firm24.docarama.com/service/iam');
   var iam = new IAM(iamUrl);
+  var createCompany = (request.env.company ? request.env.company.toLowerCase() === 'true' : false);
 
   return new Promise(function(resolve, reject) {
 
     var form = request.post;
-    var names = form.name.split(' ');
-    var first_name = names.shift();
-    var last_name = names.join(' ');
-
     var user = {};
     user.email = form.email;
     user.password = form.password;
-    user.first_name = first_name;
-    user.last_name = last_name;
-    
+
+
+    if (form.name) {
+      var names = form.name.split(' ');
+      user.first_name = names.shift();
+      user.last_name = names.join(' ');
+    } else {
+      user.first_name = form.first_name;
+      user.last_name = form.last_name;
+    }
+
+    var companyName = null;
+    if (form.company && form.company !== '') {
+      companyName = form.company;
+    } else if (createCompany) {
+      companyName = user.first_name + ' ' + user.last_name;
+    }
+
+    if (companyName) {
+      user.employment = {
+        organization: {
+          name: companyName
+        }
+      };
+    }
+
     var redirect = 'http://firm24.docarama.com/dashboard';
     if (form.redirect) {
       redirect = form.redirect;
