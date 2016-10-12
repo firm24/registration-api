@@ -30,6 +30,10 @@ api.post('/register', function (request) {
       user.last_name = form.last_name;
     }
 
+    if (form.referrer || form.referral || request.env.referral) {
+      user.referral = form.referrer || form.referral || request.env.referral;
+    }
+
     var companyName = null;
     if (form.company && form.company !== '') {
       companyName = form.company;
@@ -71,6 +75,30 @@ api.post('/register', function (request) {
     });
   });
 },{success: {code: 303, headers: ['Location']}});
+
+api.post('/activecampaign', function (request) {
+  "use strict";
+
+  var iamUrl = (request.env.iam ? request.env.iam : 'http://firm24.docarama.com/service/iam');
+  var iam = new IAM(iamUrl);
+
+  return new Promise(function(resolve, reject) {
+
+    var form = request.post;
+    var user = {};
+    user.email = form['contact[email]'];
+    user.first_name = form['contact[first_name]'];
+    user.last_name = form['contact[last_name]'];
+
+    user.referral = request.env.referral || 'firm24';
+
+    iam.registerUser(user).then(function(res){
+      resolve('OK');
+    }).catch(function(err) {
+      resolve('Error: ' + err.message);
+    });
+  });
+}, {success: { contentType: 'text/plain', code: 201 }});
 
 api.post('/login', function (request) {
   "use strict";
