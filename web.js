@@ -126,6 +126,14 @@ api.post('/login', function (request) {
       var url = new Url(redirect);
       url.query.hash = session.id;
 
+      if (request.queryString.template) {
+        url.query.template = request.queryString.template;
+      }
+
+      if (request.queryString.package) {
+        url.query.package = request.queryString.package;
+      }
+
       resolve(new api.ApiResponse('OK', {'Location': url.toString()}));
     }).catch(function(err) {
       var error = 'error-login';
