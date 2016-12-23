@@ -103,7 +103,7 @@ api.post('/activecampaign', function (request) {
 api.post('/login', function (request) {
   "use strict";
 
-  var iamUrl = (request.env.iam ? request.env.iam : 'http://firm24.docarama.com/service/iam');
+  var iamUrl = (request.env.iam ? request.env.iam : 'https://mijn.firm24.com/service/iam');
   var iam = new IAM(iamUrl);
 
   return new Promise(function(resolve, reject) {
@@ -120,7 +120,7 @@ api.post('/login', function (request) {
       redirect = request.env.redirect;
     }
 
-    var origin = (request.headers.Referer ? request.headers.Referer.replace(/\/$/, '') : 'http://www.firm24.com/aanmelden');
+    var origin = (request.headers.Referer ? request.headers.Referer.replace(/\/$/, '') : 'https://mijn.firm24.com/aanmelden');
 
     iam.createSession(user).then(function(session) {
       var url = new Url(redirect);
@@ -145,7 +145,7 @@ api.post('/login', function (request) {
 api.get('/forgot', function (request) {
   "use strict";
 
-  var iamUrl = (request.env.iam ? request.env.iam : 'http://firm24.docarama.com/service/iam');
+  var iamUrl = (request.env.iam ? request.env.iam : 'https://mijn.firm24.com/service/iam');
   var iam = new IAM(iamUrl);
 
   return new Promise(function(resolve, reject) {
