@@ -19,7 +19,7 @@ api.post('/register', function (request) {
     var user = {};
     user.email = form.email;
     user.password = form.password;
-
+    user.language = (form.language ? form.language : 'nl');
 
     if (form.name) {
       var names = form.name.split(' ');
