@@ -73,14 +73,14 @@ api.post('/register', function (request) {
       "type: 'lead'," +
       "campaignID: '27819'," +
       "productID: '41350'," +
-      "transactionID: '{transactionID}'," +
+      "transactionID: '" + res.id + "'," +
       "email: ''," +
       "descrMerchant: ''," +
       "descrAffiliate: ''" +
       "});" +
       "</script>" +
       "<noscript>" +
-      "<img src='//tl.tradetracker.net/?cid=27819&amp;pid=41350&amp;tid={transactionID}&amp;data=&amp;eml=&amp;descrMerchant=&amp;descrAffiliate=&amp;event=lead' alt='' />" +
+      "<img src='//tl.tradetracker.net/?cid=27819&amp;pid=41350&amp;tid=" + res.id + "&amp;data=&amp;eml=&amp;descrMerchant=&amp;descrAffiliate=&amp;event=lead' alt='' />" +
       "</noscript>" +
       "<script type='text/javascript'>" +
       "(function(ttConversionOptions) {" +
