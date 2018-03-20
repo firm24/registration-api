@@ -25,7 +25,7 @@
   "homepage": "https://github.com/legalthings/registration-gateway#readme",
   "dependencies": {
     "bluebird": "^3.4.6",
-    "claudia-api-builder": "^1.6.0",
+    "claudia-api-builder": "^3",
     "domurl": "^2.1.7",
     "request": "^2.75.0",
     "request-promise": "^2.0.1"
