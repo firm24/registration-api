@@ -18,7 +18,9 @@ api.post('/register', function (request) {
     var form = request.post;
     var user = {};
     user.email = form.email;
-    user.password = form.password;
+    if (form.password) {
+      user.password = form.password;
+    }
     user.language = (form.language ? form.language : 'nl');
 
     if (form.name) {
@@ -58,23 +60,60 @@ api.post('/register', function (request) {
 
     var origin = (request.headers.Referer ? request.headers.Referer.replace(/\/$/, '') : 'http://www.firm24.com/aanmelden');
 
+    var GTMTag = request.env.gtmtag ? request.env.gtmtag : null;
+    var TT = request.env.tt ? request.env.tt : false;
+    var createdUser;
+
     iam.registerUser(user).then(function(res){
+      createdUser = res;
       return iam.createSession(user);
     }).then(function(session){
 
       var url = new Url(redirect);
       url.query.hash = session.id;
 
-      resolve(new api.ApiResponse('OK', {'Location': url.toString()}));
+      var redirectPage = "<html><head>";
+      if (TT) {
+        redirectPage += "<script type='text/javascript'>" +
+          "var ttConversionOptions = ttConversionOptions || [];" +
+          "ttConversionOptions.push({ " +
+          "type: 'lead'," +
+          "campaignID: '27819'," +
+          "productID: '41350'," +
+          "transactionID: '" + createdUser.id + "'," +
+          "email: ''," +
+          "descrMerchant: ''," +
+          "descrAffiliate: ''" +
+          "});" +
+          "</script>" +
+          "<noscript>" +
+          "<img src='//tl.tradetracker.net/?cid=27819&amp;pid=41350&amp;tid=" + createdUser.id + "&amp;data=&amp;eml=&amp;descrMerchant=&amp;descrAffiliate=&amp;event=lead' alt='' />" +
+          "</noscript>" +
+          "<script type='text/javascript'>" +
+          "(function(ttConversionOptions) {" +
+          "  var campaignID = 'campaignID' in ttConversionOptions ? ttConversionOptions.campaignID : ('length' in ttConversionOptions && ttConversionOptions.length ? ttConversionOptions[0].campaignID : null);" +
+          "  var tt = document.createElement('script'); tt.type = 'text/javascript'; tt.async = true; tt.src = '//tm.tradetracker.net/conversion?s=' + encodeURIComponent(campaignID) + '&t=m';" +
+          "  var s = document.getElementsByTagName('script'); s = s[s.length - 1]; s.parentNode.insertBefore(tt, s);" +
+          "})(ttConversionOptions);" +
+          "</script>";
+      }
+
+      if (GTMTag) {
+        redirectPage +=  "<!-- Google Tag Manager --><noscript><iframe src='//www.googletagmanager.com/ns.html?id=" + GTMTag + "' height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','" + GTMTag + "');</script><!-- End Google Tag Manager -->";
+      }
+      redirectPage +=  "<script> setTimeout(function(){window.location.href='" + url.toString() + "';}, 1)</script></head><body>U wordt ingelogd klik <a href='" + url.toString() + "'>hier</a> indien dit te lang duurt</body></html>";
+
+      resolve(redirectPage);
     }).catch(function(err) {
+      console.log('Error: ', err);
       var error = 'error-register';
       if(err.statusCode == 409) {
         error = 'error-register-exists';
       }
-      resolve(new api.ApiResponse('Error', {'Location': origin + '#' + error}));
+      reject(new api.ApiResponse('Error', {'Location': origin + '#' + error}));
     });
   });
-},{success: {code: 303, headers: ['Location']}});
+},{success: {contentType: 'text/html'}, error: {code: 303}});
 
 api.post('/activecampaign', function (request) {
   "use strict";
@@ -120,7 +159,7 @@ api.post('/login', function (request) {
       redirect = request.env.redirect;
     }
 
-    var origin = (request.headers.Referer ? request.headers.Referer.replace(/\/$/, '') : 'https://mijn.firm24.com/aanmelden');
+    var origin = (request.headers.Referer ? request.headers.Referer.replace(/\/$/, '') : redirect);
 
     iam.createSession(user).then(function(session) {
       var url = new Url(redirect);
@@ -134,13 +173,20 @@ api.post('/login', function (request) {
         url.query.package = request.queryString.package;
       }
 
-      resolve(new api.ApiResponse('OK', {'Location': url.toString()}));
+      var GTMTag = request.env.gtmtag ? request.env.gtmtag : null;
+      var redirectPage = "<html><head>";
+      if (GTMTag) {
+        redirectPage +=  "<!-- Google Tag Manager FIRM24 --><noscript><iframe src='//www.googletagmanager.com/ns.html?id=" + GTMTag + "' height='0' width='0' style='display:none;visibility:hidden'></iframe></noscript><script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','" + GTMTag + "');</script><!-- End Google Tag Manager -->";
+      }
+      redirectPage +=  "<script> setTimeout(function(){window.location.href='" + url.toString() + "';}, 1)</script></head><body>U wordt ingelogd klik <a href='\" + url.toString() + \"'>hier</a> indien dit te lang duurt</body></html>";
+
+      resolve(redirectPage);
     }).catch(function(err) {
       var error = 'error-login';
-      resolve(new api.ApiResponse('Error', {'Location': origin + '#' + error}));
+      reject(new api.ApiResponse('Error', {'Location': origin + '#' + error}));
     });
   });
-},{success: {code: 303, headers: ['Location']}});
+},{success: {contentType: 'text/html'}, error: {code: 303}});
 
 api.get('/forgot', function (request) {
   "use strict";
